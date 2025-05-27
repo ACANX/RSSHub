@@ -35,8 +35,8 @@ export const route: Route = {
 export async function handler(ctx) {
 
     const { groupId, artifactId } = ctx.req.param();
-    console.log('groupId',groupId);
-    console.log('artifactId',artifactId);
+    console.log('groupId', groupId);
+    console.log('artifactId', artifactId);
     // const groupId = encodeURIComponent(ctx.req.params.groupId);
     // const artifactId = encodeURIComponent(ctx.req.params.artifactId);
     

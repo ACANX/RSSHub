@@ -4,5 +4,5 @@ export const namespace: Namespace = {
     name: 'maven',
     url: 'https://central.sonatype.com/',
     categories: ['programming'],
-    lang: 'zh-CN',
+    lang: 'en',
 };
