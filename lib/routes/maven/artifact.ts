@@ -42,7 +42,7 @@ export async function handler(ctx) {
         sortDirection: 'desc',
         page: 0,
         size: 1, // 仅获取最新版本
-        filter: `namespace:${groupId},name:${artifactId}`,
+        filter: `namespace:${groupId}%2Cname:${artifactId}`,
     };
 
     try {
@@ -52,7 +52,7 @@ export async function handler(ctx) {
             headers: {
                 // 添加必要的请求头
                 'Accept': 'application/json',
-                'User-Agent': 'RSSHub (https://github.com/DIYgod/RSSHub)',
+                'User-Agent': 'RSSHub',
             },
         }).json();
 
@@ -80,11 +80,11 @@ export async function handler(ctx) {
         };
 
         ctx.state.data = {
-            title: `${decodeURIComponent(groupId)}:${decodeURIComponent(artifactId)} Maven Artifact Updates`,
-            link: `https://central.sonatype.com/search?q=namespace:${groupId}%20AND%20name:${artifactId}`,
+            title: `${groupId}:${artifactId} Maven Artifact Update`,
+            link: `https://central.sonatype.com/artifact/${groupId}/${artifactId}`,
             item: [item],
             // 设置智能缓存策略（根据 API 响应头或默认 1 小时）
-            ttl: cache.getTtl('sonatype', groupId, artifactId) || 3600,
+            ttl: cache.getTtl('sonatype', groupId, artifactId) || 7200,
         };
 
     } catch (error) {
