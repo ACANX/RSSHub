@@ -35,24 +35,25 @@ export const route: Route = {
 export async function handler(ctx) {
 
     const { groupId, artifactId } = ctx.req.param();
+    console.log('groupId',groupId);
+    console.log('artifactId',artifactId);
     // const groupId = encodeURIComponent(ctx.req.params.groupId);
     // const artifactId = encodeURIComponent(ctx.req.params.artifactId);
     
-    const apiUrl = 'https://central.sonatype.com/api/internal/browse/component/versions';
+    const apiUrl = 'https://central.sonatype.com/api/internal/browse/component/versions?sortField=normalizedVersion&sortDirection=desc&page=0&size=3&filter=namespace:org.springframework,name:spring-core';
     
     // 构建 Sonatype API 请求参数
-    const params = {
-        sortField: 'normalizedVersion',
-        sortDirection: 'desc',
-        page: 0,
-        size: 1, // 仅获取最新版本
-        filter: `namespace:${groupId}%2Cname:${artifactId}`,
-    };
+    // const params = {
+    //     sortField: 'normalizedVersion',
+    //     sortDirection: 'desc',
+    //     page: 0,
+    //     size: 1, // 仅获取最新版本
+    //     filter: `namespace:${groupId}%2Cname:${artifactId}`,
+    // };
 
 
     // 调用 Sonatype API
     const response = await ofetch(apiUrl, {
-        searchParams: params,
         headers: {
             // 添加必要的请求头
             'Accept': 'application/json',
