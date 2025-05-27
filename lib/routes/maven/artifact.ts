@@ -1,8 +1,8 @@
-const cache = require('@/utils/cache');
-const got = require('@/utils/got');
+import cache from '@/utils/cache';
+import got from '@/utils/got';
 import { art } from '@/utils/render';
 import { parseDate } from '@/utils/parse-date';
-import { Route } from '@/types';
+import { Route, DataItem  } from '@/types';
 import path from 'node:path';
 
 export const route: Route = {
@@ -27,6 +27,7 @@ export const route: Route = {
     name: 'Maven Artifact',
     maintainers: ['ACANX'],
     handler,
+    url: 'central.sonatype.com/'
 };
 
 
@@ -45,56 +46,48 @@ export async function handler(ctx) {
         filter: `namespace:${groupId}%2Cname:${artifactId}`,
     };
 
-    try {
-        // 调用 Sonatype API
-        const response = await got(apiUrl, {
-            searchParams: params,
-            headers: {
-                // 添加必要的请求头
-                'Accept': 'application/json',
-                'User-Agent': 'RSSHub',
-            },
-        }).json();
 
-        // 验证响应数据结构
-        if (!response.components || response.components.length === 0) {
-            throw new Error('Sonatype API returned empty components array');
-        }
+    // 调用 Sonatype API
+    const response = await got(apiUrl, {
+        searchParams: params,
+        headers: {
+            // 添加必要的请求头
+            'Accept': 'application/json',
+            'User-Agent': 'RSSHub',
+        },
+    }).json();
 
-        const latestComponent = response.components[0];
-        const latestVersion = latestComponent.version;
-        const publishTime = latestComponent.publishedEpochMillis || Date.now(); // 使用最后修改时间或当前时间
+    // 验证响应数据结构
+    if (!response.components || response.components.length === 0) {
+        throw new Error('Sonatype API returned empty components array');
+    }
 
-        // 生成 RSS 条目
-        const item = {
-            title: `${decodeURIComponent(groupId)}:${decodeURIComponent(artifactId)} ${latestVersion} released`,
-            link: `https://central.sonatype.com/artifact/${groupId}/${artifactId}/${latestVersion}`,
-            description: art(path.join(__dirname, 'templates/description.art'), {
-                groupId: decodeURIComponent(groupId),
-                artifactId: decodeURIComponent(artifactId),
-                version: latestVersion,
-                releaseNotes: latestComponent.releaseNotes || 'No release notes available',
-            }),
-            pubDate: parseDate(publishTime),
-            guid: `${groupId}:${artifactId}:${latestVersion}`,
-        };
+    const latestComponent = response.components[0];
+    const latestVersion = latestComponent.version;
+    const publishTime = latestComponent.publishedEpochMillis || Date.now(); // 使用最后修改时间或当前时间
 
-        ctx.state.data = {
-            title: `${groupId}:${artifactId} Maven Artifact Update`,
-            link: `https://central.sonatype.com/artifact/${groupId}/${artifactId}`,
-            item: [item],
-            // 设置智能缓存策略（根据 API 响应头或默认 1 小时）
-            ttl: cache.getTtl('sonatype', groupId, artifactId) || 7200,
-        };
+    const items: DataItem[] = response.components.map(
+        (item) =>
+            ({
+                title: `${decodeURIComponent(groupId)}:${decodeURIComponent(artifactId)} ${item.version} released`,
+                link: `https://central.sonatype.com/artifact/${groupId}/${artifactId}/${latestVersion}`,
+                description: art(path.join(__dirname, 'templates/description.art'), {
+                    groupId: decodeURIComponent(groupId),
+                    artifactId: decodeURIComponent(artifactId),
+                    version: item.version,
+                    releaseNotes: 'No release notes available',
+                }),
+                pubDate: parseDate(publishTime),
+                guid: `${groupId}:${artifactId}:${item.version}`,
+            }) as DataItem
+    );
 
-    } catch (error) {
-        // 错误处理
-        if (error.response?.statusCode === 404) {
-            throw new Error('Artifact not found on Sonatype Central');
-        } else if (error.response?.statusCode === 429) {
-            ctx.set('cache-control', 'no-cache');
-            throw new Error('Sonatype API rate limit exceeded');
-        }
-        throw new Error(`Failed to fetch from Sonatype API: ${error.message}`);
+    return {
+        title: `${groupId}:${artifactId} Maven Artifact Update`,
+        link: `https://central.sonatype.com/artifact/${groupId}/${artifactId}`,
+        item: items,
+        language: 'zh-CN',
+        // 设置智能缓存策略（根据 API 响应头或默认 1 小时）
+        ttl: cache.getTtl('sonatype', groupId, artifactId) || 72000,
     }
 };
