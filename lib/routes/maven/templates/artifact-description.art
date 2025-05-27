@@ -1,0 +1,16 @@
+<dl>
+    <dt>GroupID</dt>
+    <dd>{{ groupId }}</dd>
+    
+    <dt>ArtifactID</dt>
+    <dd>{{ artifactId }}</dd>
+    
+    <dt>最新版本</dt>
+    <dd>{{ version }}</dd>
+</dl>
+
+<p><a href="https://mvnrepository.com/artifact/{{ groupId }}/{{ artifactId }}/{{ version }}">查看依赖配置</a></p>
+
+<p><a href="https://repo1.maven.org/maven2/{{ groupId }}/{{ artifactId }}/{{ version }}/{{ artifactId }}-{{ version }}.pom">查看pom</a></p>
+
+<p><a href="https://repo1.maven.org/maven2/{{ groupId }}/{{ artifactId }}/{{ version }}/">查看构件的所有文件</a></p>
