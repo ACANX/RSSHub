@@ -71,7 +71,7 @@ export async function handler(ctx) {
             ({
                 title: `${decodeURIComponent(groupId)}:${decodeURIComponent(artifactId)} ${item.version} released`,
                 link: `https://central.sonatype.com/artifact/${groupId}/${artifactId}/${latestVersion}`,
-                description: art(path.join(__dirname, 'templates/description.art'), {
+                description: art(path.join(__dirname, 'templates/artifact-description.art'), {
                     groupId: decodeURIComponent(groupId),
                     artifactId: decodeURIComponent(artifactId),
                     version: item.version,
@@ -85,9 +85,6 @@ export async function handler(ctx) {
     return {
         title: `${groupId}:${artifactId} Maven Artifact Update`,
         link: `https://central.sonatype.com/artifact/${groupId}/${artifactId}`,
-        item: items,
-        language: 'zh-CN',
-        // 设置智能缓存策略（根据 API 响应头或默认 1 小时）
-        ttl: cache.getTtl('sonatype', groupId, artifactId) || 72000,
+        item: items
     }
 };
