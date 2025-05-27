@@ -1,5 +1,6 @@
 import cache from '@/utils/cache';
 import got from '@/utils/got';
+import ofetch from '@/utils/ofetch';
 import { art } from '@/utils/render';
 import { parseDate } from '@/utils/parse-date';
 import { Route, DataItem  } from '@/types';
@@ -32,8 +33,10 @@ export const route: Route = {
 
 
 export async function handler(ctx) {
-    const groupId = encodeURIComponent(ctx.params.groupId);
-    const artifactId = encodeURIComponent(ctx.params.artifactId);
+
+    const { groupId, artifactId } = ctx.req.param();
+    // const groupId = encodeURIComponent(ctx.req.params.groupId);
+    // const artifactId = encodeURIComponent(ctx.req.params.artifactId);
     
     const apiUrl = 'https://central.sonatype.com/api/internal/browse/component/versions';
     
@@ -48,7 +51,7 @@ export async function handler(ctx) {
 
 
     // 调用 Sonatype API
-    const response = await got(apiUrl, {
+    const response = await ofetch(apiUrl, {
         searchParams: params,
         headers: {
             // 添加必要的请求头
