@@ -5,7 +5,7 @@ import { Route, DataItem  } from '@/types';
 import path from 'node:path';
 
 export const route: Route = {
-    path: '/release-queue',
+    path: '/artifact-release-queue',
     categories: ['programming'],
     example: '/maven/artifact-release-queue',
     parameters: { },
