@@ -1,4 +1,3 @@
-import cache from '@/utils/cache';
 import ofetch from '@/utils/ofetch';
 import { art } from '@/utils/render';
 import { parseDate } from '@/utils/parse-date';
