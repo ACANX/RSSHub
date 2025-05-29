@@ -1,4 +1,3 @@
-import cache from '@/utils/cache';
 import ofetch from '@/utils/ofetch';
 import { art } from '@/utils/render';
 import { parseDate } from '@/utils/parse-date';
@@ -6,10 +5,10 @@ import { Route, DataItem  } from '@/types';
 import path from 'node:path';
 
 export const route: Route = {
-    path: '/artifact/:groupId/:artifactId',
+    path: '/release-queue',
     categories: ['programming'],
-    example: '/maven/artifact/org.springframework/spring-core',
-    parameters: { groupId: '构件GroupID', artifactId: '构件ID', groupIdPath: '构件GroupID的相对路径格式' },
+    example: '/maven/artifact-release-queue',
+    parameters: { },
     features: {
         requireConfig: false,
         requirePuppeteer: false,
@@ -20,11 +19,11 @@ export const route: Route = {
     },
     radar: [
         {
-            source: ['repo1.maven.org/maven2/:groupIdPath/:artifactId/', 'central.sonatype.com/artifact/:groupId/:artifactId', 'mvnrepository.com/artifact/:groupId/:artifactId'],
-            target: '/maven/artifact/:groupId/:artifactId',
+            source: ['repo1.maven.org/maven2/', 'central.sonatype.com/artifact/', 'mvnrepository.com/artifact/'],
+            target: '/maven/artifact-release-queue',
         },
     ],
-    name: 'Maven Artifact',
+    name: 'Maven Artifact Release Queue',
     maintainers: ['ACANX'],
     handler,
     url: 'maven.org/'
@@ -32,13 +31,21 @@ export const route: Route = {
 
 
 export async function handler(ctx) {
-    const { groupId, artifactId } = ctx.req.param();
-    const apiUrl = `https://central.sonatype.com/api/internal/browse/component/versions?sortField=normalizedVersion&sortDirection=desc&page=0&size=6&filter=namespace:${groupId},name:${artifactId}`;
+    const apiUrl = `https://central.sonatype.com/api/internal/browse/components`;
     const response = await ofetch(apiUrl, {
+        method: "POST",
         headers: {
             'Accept': 'application/json',
             'User-Agent': 'RSSHub',
         },
+        body: {
+            "page": 0,
+            "size": 50,
+            "searchTerm": "",
+            "sortField": "publishedDate",
+            "sortDirection": "desc",
+            "filter": []
+          }
     });
 
     if (!response.components || response.components.length === 0) {
@@ -48,12 +55,12 @@ export async function handler(ctx) {
     const items: DataItem[] = response.components.map(
         (item) =>
             ({
-                title: `${groupId}:${artifactId}[${item.description}] ${item.version} 发布`,
-                link: `https://central.sonatype.com/artifact/${groupId}/${artifactId}/${item.version}`,
+                title: `${item.namespace}:${item.name}[${item.description}] ${item.version} 发布`,
+                link: `https://central.sonatype.com/artifact/${item.namespace}/${item.name}/${item.version}`,
                 description: art(path.join(__dirname, 'templates/artifact-description.art'), {
-                    groupId: groupId,
-                    artifactId: artifactId,
-                    groupIdPath: groupId.replace(/\./g, "/"),
+                    groupId: item.namespace,
+                    artifactId: item.name,
+                    groupIdPath: item.namespace.replace(/\./g, "/"),
                     description: item.description,
                     version: item.version,
                     packaging: item.packaging,
@@ -67,10 +74,10 @@ export async function handler(ctx) {
     );
 
     return {
-        title: `Maven构件 ${groupId}:${artifactId} 发布RSS`,
-        link: `https://central.sonatype.com/artifact/${groupId}/${artifactId}`,
+        title: `Maven中央仓库构件发布队列RSS`,
+        link: `https://central.sonatype.com/search`,
         item: items,
         language: 'zh-CN',
-        ttl: 86400
+        ttl: 1200
     }
 };
