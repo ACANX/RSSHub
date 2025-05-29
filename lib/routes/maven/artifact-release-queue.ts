@@ -35,8 +35,12 @@ export async function handler(ctx) {
     const response = await ofetch(apiUrl, {
         method: "POST",
         headers: {
-            'Accept': 'application/json',
-            'User-Agent': 'RSSHub',
+            'content-type': 'application/json',
+            'accept': 'application/json',
+            "cache-control": "no-cache",
+            'user-agent': 'RSSHub',
+            'origin': 'https://central.sonatype.com',
+            'referer': 'https://central.sonatype.com/search'
         },
         body: {
             "page": 0,
@@ -78,6 +82,6 @@ export async function handler(ctx) {
         link: `https://central.sonatype.com/search`,
         item: items,
         language: 'zh-CN',
-        ttl: 1200
+        ttl: 300
     }
 };
