@@ -1,16 +1,25 @@
-<dl>
-    <dt>GroupID</dt>
-    <dd>{{ groupId }}</dd>
+<div>
+  <dl>
+    <dt>{{ description }}</dt>
     
-    <dt>ArtifactID</dt>
-    <dd>{{ artifactId }}</dd>
+    <dt>GroupID:{{ groupId }}</dt>
     
-    <dt>最新版本</dt>
-    <dd>{{ version }}</dd>
-</dl>
+    <dt>ArtifactID:{{ artifactId }}</dt>
+    
+    <dt>Version:{{ version }}</dt>
+    
+    <dt>打包类型:{{ packaging }}</dt>
+    
+    <dt>许可证:{{ licenses }}</dt>
+  </dl>
 
-<p><a href="https://mvnrepository.com/artifact/{{ groupId }}/{{ artifactId }}/{{ version }}">查看依赖配置</a></p>
-
-<p><a href="https://repo1.maven.org/maven2/{{ groupId }}/{{ artifactId }}/{{ version }}/{{ artifactId }}-{{ version }}.pom">查看pom</a></p>
-
-<p><a href="https://repo1.maven.org/maven2/{{ groupId }}/{{ artifactId }}/{{ version }}/">查看构件的所有文件</a></p>
+  <p><a href="https://repo1.maven.org/maven2/{{ groupIdPath }}/{{ artifactId }}/{{ version }}/">构件存档文件</a></p>
+  
+  <p><a href="https://repo1.maven.org/maven2/{{ groupIdPath }}/{{ artifactId }}/{{ version }}/{{ artifactId }}-{{ version }}.pom">查看POM</a></p>
+  
+  <p><a href="https://mvnrepository.com/artifact/{{ groupId }}/{{ artifactId }}/{{ version }}">MvnRepository中查看此构件</a></p>
+  
+  <p><a href="https://central.sonatype.com/artifact/{{ groupId }}/{{ artifactId }}/{{ version }}/dependents">{{ dependencyOfCount }}个构件正在使用</a></p>
+    
+  <p><a href="https://central.sonatype.com/artifact/{{ groupId }}/{{ artifactId }}/{{ version }}/dependencies">依赖{{ dependentOnCount }}个构件</a></p>
+</div>
